@@ -32,6 +32,16 @@
       border-radius: 1rem; border: 1px solid var(--pico-muted-border-color);
       margin-right: .25rem;
     }
+    .badge-danger {
+      color: #fff; background: var(--pico-del-color); border-color: var(--pico-del-color); font-weight: 600;
+    }
+    .sosies { border: 2px solid var(--pico-del-color); border-radius: var(--pico-border-radius); padding: .75rem; margin-bottom: 1rem; }
+    .sosies > strong { color: var(--pico-del-color); display: block; margin-bottom: .5rem; font-size: .9rem; }
+    .sosie { display: flex; gap: .75rem; align-items: flex-start; font-size: .85rem; }
+    .sosie + .sosie { margin-top: .75rem; }
+    .sosie img { width: 96px; height: 96px; object-fit: cover; border-radius: var(--pico-border-radius); flex-shrink: 0; background: var(--pico-muted-border-color); }
+    .sosie > a { flex-shrink: 0; }
+    .sosie p { margin: 0; }
     .filters { display: flex; flex-wrap: wrap; gap: .5rem; }
     .filters button { width: auto; padding: .35rem .9rem; font-size: .9rem; }
   </style>
@@ -74,6 +84,32 @@
   </footer>
 
   <script>
+    // Espèces toxiques ou mortelles avec lesquelles on peut confondre un comestible
+    const toxiques = {
+      amanite_phalloide: { nom: "Amanite phalloïde", latin: "Amanita phalloides", wiki: "Amanita_phalloides", tox: "Mortelle",
+        indice: "Volve en sac à la base, anneau, lames blanches. Jeune, elle forme un « œuf » blanc." },
+      amanite_vireuse: { nom: "Amanite vireuse", latin: "Amanita virosa", wiki: "Amanita_virosa", tox: "Mortelle",
+        indice: "Entièrement blanche, lames toujours blanches (jamais roses), volve à la base." },
+      gyromitre: { nom: "Gyromitre", latin: "Gyromitra esculenta", wiki: "Gyromitra_esculenta", tox: "Mortelle",
+        indice: "Chapeau plissé comme un cerveau (pas d'alvéoles), intérieur cloisonné et non creux." },
+      inocybe_patouillard: { nom: "Inocybe de Patouillard", latin: "Inosperma erubescens", wiki: "Inosperma_erubescens", tox: "Mortelle",
+        indice: "Chapeau conique fibrilleux qui rougit, pas d'odeur de farine, même saison que le mousseron." },
+      entolome_livide: { nom: "Entolome livide", latin: "Entoloma sinuatum", wiki: "Entoloma_sinuatum", tox: "Toxique",
+        indice: "Lames jaunâtres puis roses à maturité, sporée rose." },
+      lepiote_brunissante: { nom: "Lépiote brun-incarnat", latin: "Lepiota brunneoincarnata", wiki: "Lepiota_brunneoincarnata", tox: "Mortelle",
+        indice: "Petite lépiote (moins de 10 cm), sans anneau coulissant, pied à zones brun rosé." },
+      clitocybe_blanchi: { nom: "Clitocybe blanchi", latin: "Clitocybe dealbata", wiki: "Clitocybe_dealbata", tox: "Mortel",
+        indice: "Petit, blanc farineux, lames décurrentes serrées, pied qui casse (non élastique)." },
+      clitocybe_olivier: { nom: "Clitocybe de l'olivier", latin: "Omphalotus olearius", wiki: "Omphalotus_olearius", tox: "Toxique",
+        indice: "Orange, en touffes sur souches ou racines, vraies lames serrées (pas des plis)." },
+      cortinaire_couleur_rocou: { nom: "Cortinaire rougeâtre", latin: "Cortinarius rubellus", wiki: "Cortinarius_rubellus", tox: "Mortel",
+        indice: "Vraies lames rouille, pied plein avec bracelets jaunes, sporée brun rouille. Effets parfois après 2 semaines." },
+      mycene_pure: { nom: "Mycène pure", latin: "Mycena pura", wiki: "Mycena_pura", tox: "Toxique",
+        indice: "Lilas rosé, odeur nette de radis, pied fragile et creux." },
+      coprin_noir_encre: { nom: "Coprin noir d'encre", latin: "Coprinopsis atramentaria", wiki: "Coprinopsis_atramentaria", tox: "Toxique avec l'alcool",
+        indice: "Chapeau gris lisse sans mèches, en touffes. Toxique si on boit de l'alcool jusqu'à 3 jours avant ou après." }
+    };
+
     // saisons : printemps, ete, automne, hiver
     const champignons = [
       {
@@ -130,14 +166,16 @@
         saisons: ["ete", "automne"],
         habitat: "Hêtres, chênes et châtaigniers, sur sol acide et moussu.",
         description: "Jaune d'œuf, plis (pas de vraies lames) décurrents et fourchus, odeur fruitée d'abricot.",
-        confusion: "Fausse girolle (Hygrophoropsis aurantiaca, vraies lames orangées), clitocybe de l'olivier (toxique, en touffes sur souches)."
+        confusion: "Fausse girolle (Hygrophoropsis aurantiaca, vraies lames orangées), clitocybe de l'olivier (toxique, en touffes sur souches).",
+        sosies: ["clitocybe_olivier"]
       },
       {
         nom: "Chanterelle en tube", latin: "Craterellus tubaeformis", wiki: "Craterellus_tubaeformis",
         saisons: ["automne", "hiver"],
         habitat: "Mousses et bois pourrissants, sous conifères et feuillus, souvent en grandes troupes.",
         description: "Chapeau brun creusé en entonnoir, plis gris, pied jaune creux.",
-        confusion: "Petits cortinaires bruns (dont certains mortels) : vérifier les plis et le pied creux."
+        confusion: "Petits cortinaires bruns (dont certains mortels) : vérifier les plis et le pied creux.",
+        sosies: ["cortinaire_couleur_rocou"]
       },
       {
         nom: "Trompette de la mort", latin: "Craterellus cornucopioides", wiki: "Craterellus_cornucopioides",
@@ -172,35 +210,40 @@
         saisons: ["printemps"],
         habitat: "Lisières, sous frênes et ormes, anciens feux, talus calcaires (mars-mai).",
         description: "Chapeau alvéolé en éponge, entièrement creux du chapeau au pied. Toujours bien cuite.",
-        confusion: "Gyromitre (Gyromitra esculenta, chapeau cérébriforme, chair cloisonnée) : mortelle."
+        confusion: "Gyromitre (Gyromitra esculenta, chapeau cérébriforme, chair cloisonnée) : mortelle.",
+        sosies: ["gyromitre"]
       },
       {
         nom: "Morille conique", latin: "Morchella conica", wiki: "Morchella_conica",
         saisons: ["printemps"],
         habitat: "Sous conifères, lisières, zones brûlées et terrains remaniés (mars-mai).",
         description: "Chapeau conique brun foncé à alvéoles allongées alignées en côtes verticales, entièrement creux. Toujours bien cuire.",
-        confusion: "Gyromitre (Gyromitra esculenta, chapeau cérébriforme, chair cloisonnée) : mortelle."
+        confusion: "Gyromitre (Gyromitra esculenta, chapeau cérébriforme, chair cloisonnée) : mortelle.",
+        sosies: ["gyromitre"]
       },
       {
         nom: "Mousseron de la Saint-Georges", latin: "Calocybe gambosa", wiki: "Calocybe_gambosa",
         saisons: ["printemps"],
         habitat: "Lisières, haies et prés, en ronds de sorcières (fin avril-mai).",
         description: "Blanc crème, charnu, lames serrées blanches, forte odeur de farine.",
-        confusion: "Entolome livide (toxique, lames roses à maturité) et inocybe de Patouillard (mortel, rougissant)."
+        confusion: "Entolome livide (toxique, lames roses à maturité) et inocybe de Patouillard (mortel, rougissant).",
+        sosies: ["inocybe_patouillard", "entolome_livide"]
       },
       {
         nom: "Coulemelle (Lépiote élevée)", latin: "Macrolepiota procera", wiki: "Macrolepiota_procera",
         saisons: ["ete", "automne"],
         habitat: "Clairières, lisières, bords de chemins forestiers.",
         description: "Grand chapeau (jusqu'à 30 cm) à écailles brunes, pied chiné, anneau double coulissant. Pied fibreux à jeter.",
-        confusion: "Petites lépiotes (mortelles !) : ne ramasser que des spécimens de plus de 10 cm de diamètre."
+        confusion: "Petites lépiotes (mortelles !) : ne ramasser que des spécimens de plus de 10 cm de diamètre.",
+        sosies: ["lepiote_brunissante"]
       },
       {
         nom: "Rosé des prés", latin: "Agaricus campestris", wiki: "Agaricus_campestris",
         saisons: ["ete", "automne"],
         habitat: "Prairies pâturées et pelouses en bordure de massif, jamais en forêt profonde.",
         description: "Chapeau blanc, lames roses puis brun chocolat, anneau fragile, odeur agréable.",
-        confusion: "Amanites blanches (mortelles, lames toujours blanches, volve) et agaric jaunissant (odeur d'encre)."
+        confusion: "Amanites blanches (mortelles, lames toujours blanches, volve) et agaric jaunissant (odeur d'encre).",
+        sosies: ["amanite_vireuse", "amanite_phalloide"]
       },
       {
         nom: "Pleurote en huître", latin: "Pleurotus ostreatus", wiki: "Pleurotus_ostreatus",
@@ -228,21 +271,24 @@
         saisons: ["ete", "automne"],
         habitat: "Hêtraies et chênaies, très commune.",
         description: "Chapeau aux teintes mêlées violet-vert-gris, lames blanches souples et lardacées (ne cassent pas).",
-        confusion: "Russules âcres (goûter un fragment et recracher : doit être douce), amanite phalloïde (volve, anneau)."
+        confusion: "Russules âcres (goûter un fragment et recracher : doit être douce), amanite phalloïde (volve, anneau).",
+        sosies: ["amanite_phalloide"]
       },
       {
         nom: "Laccaire améthyste", latin: "Laccaria amethystina", wiki: "Laccaria_amethystina",
         saisons: ["ete", "automne"],
         habitat: "Hêtraies humides, très abondant dans les feuilles.",
         description: "Petit champignon entièrement violet améthyste, lames espacées. Peut accumuler l'arsenic : à consommer avec modération.",
-        confusion: "Mycène pure (toxique, odeur de radis)."
+        confusion: "Mycène pure (toxique, odeur de radis).",
+        sosies: ["mycene_pure"]
       },
       {
         nom: "Vesse-de-loup perlée", latin: "Lycoperdon perlatum", wiki: "Lycoperdon_perlatum",
         saisons: ["ete", "automne"],
         habitat: "Sols forestiers, bords de chemins.",
         description: "Boule blanche couverte de petites verrues. Comestible jeune uniquement, chair blanche et homogène.",
-        confusion: "Jeunes amanites en œuf (couper en deux : aucune silhouette de champignon ne doit apparaître), sclérodermes (chair noire)."
+        confusion: "Jeunes amanites en œuf (couper en deux : aucune silhouette de champignon ne doit apparaître), sclérodermes (chair noire).",
+        sosies: ["amanite_phalloide"]
       },
       {
         nom: "Polypore soufré", latin: "Laetiporus sulphureus", wiki: "Laetiporus_sulphureus",
@@ -263,7 +309,8 @@
         saisons: ["printemps", "ete", "automne"],
         habitat: "Pelouses et prairies en bordure de massif, en ronds de sorcières.",
         description: "Petit chapeau mamelonné beige, lames espacées, pied coriace qui se tord sans casser. Se sèche très bien.",
-        confusion: "Clitocybe blanchi (Clitocybe dealbata, mortel), qui pousse dans les mêmes ronds."
+        confusion: "Clitocybe blanchi (Clitocybe dealbata, mortel), qui pousse dans les mêmes ronds.",
+        sosies: ["clitocybe_blanchi"]
       },
       {
         nom: "Lactaire délicieux", latin: "Lactarius deliciosus", wiki: "Lactarius_deliciosus",
@@ -298,7 +345,8 @@
         saisons: ["printemps", "ete", "automne"],
         habitat: "Bords de chemins, pelouses, terrains remaniés en lisière.",
         description: "Chapeau blanc allongé en ogive couvert de mèches, lames blanches qui noircissent et se liquéfient. Cueillir jeune (lames blanches) et cuisiner le jour même.",
-        confusion: "Coprin noir d'encre (Coprinopsis atramentaria, chapeau gris lisse) : toxique avec l'alcool."
+        confusion: "Coprin noir d'encre (Coprinopsis atramentaria, chapeau gris lisse) : toxique avec l'alcool.",
+        sosies: ["coprin_noir_encre"]
       }
     ];
 
@@ -306,11 +354,11 @@
     const liste = document.getElementById("liste");
     const count = document.getElementById("count");
 
-    const placeholder = (nom) =>
+    const placeholder = (nom, toxique = false) =>
       "data:image/svg+xml;charset=utf-8," + encodeURIComponent(
         `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
-           <rect width="400" height="300" fill="#e7e2d8"/>
-           <text x="200" y="140" font-size="64" text-anchor="middle">🍄</text>
+           <rect width="400" height="300" fill="${toxique ? "#f3d6d6" : "#e7e2d8"}"/>
+           <text x="200" y="140" font-size="64" text-anchor="middle">${toxique ? "☠️" : "🍄"}</text>
            <text x="200" y="200" font-size="18" text-anchor="middle" fill="#666" font-family="sans-serif">${nom}</text>
          </svg>`);
 
@@ -325,26 +373,38 @@
         </header>
         <h3>${c.nom}</h3>
         <p class="latin">${c.latin}</p>
-        <p>${c.saisons.map(s => `<span class="badge">${saisonsLabel[s]}</span>`).join("")}</p>
+        <p>${c.sosies ? `<span class="badge badge-danger">⚠️ Confusion dangereuse</span>` : ""}${c.saisons.map(s => `<span class="badge">${saisonsLabel[s]}</span>`).join("")}</p>
+        ${c.sosies ? `<div class="sosies">
+          <strong>⚠️ Ressemble à :</strong>
+          ${c.sosies.map(id => toxiques[id]).map(t => `
+            <div class="sosie">
+              <a href="https://fr.wikipedia.org/wiki/${encodeURIComponent(t.wiki)}" target="_blank" rel="noopener">
+                <img alt="${t.nom} (${t.latin}), espèce toxique" loading="lazy" src="${placeholder(t.nom, true)}" data-wiki="${t.wiki}">
+              </a>
+              <p><strong>${t.nom}</strong> <span class="badge badge-danger">☠️ ${t.tox}</span><br>
+                 <em>${t.latin}</em><br>${t.indice}</p>
+            </div>`).join("")}
+        </div>` : ""}
         <dl class="meta">
           <dt>Description</dt><dd>${c.description}</dd>
           <dt>Habitat</dt><dd>${c.habitat}</dd>
           <dt class="warn">Confusions possibles</dt><dd>${c.confusion}</dd>
         </dl>`;
-      chargerPhoto(c, el.querySelector("img"), el.querySelector("header a"));
+      chargerPhoto(c.wiki, el.querySelector("header img"), el.querySelector("header a"));
+      el.querySelectorAll(".sosie img").forEach(img => chargerPhoto(img.dataset.wiki, img, img.parentElement, 320));
       return el;
     }
 
     // Photo récupérée via l'API publique de Wikipédia (CORS autorisé).
-    async function chargerPhoto(c, img, lien) {
+    async function chargerPhoto(wiki, img, lien, taille = 640) {
       for (const lang of ["fr", "en"]) {
         try {
-          const r = await fetch(`https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(c.wiki)}`);
+          const r = await fetch(`https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(wiki)}`);
           if (!r.ok) continue;
           const data = await r.json();
           const src = data.thumbnail?.source || data.originalimage?.source;
           if (src) {
-            img.src = src.replace(/\/\d+px-/, "/640px-");
+            img.src = src.replace(/\/\d+px-/, `/${taille}px-`);
             img.onerror = () => { img.onerror = null; img.src = src; };
             if (data.content_urls?.desktop?.page) lien.href = data.content_urls.desktop.page;
             return;
