@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Champignons comestibles de la Montagne de Reims</title>
+  <meta name="description" content="Liste des principaux champignons comestibles que l'on trouve dans la Montagne de Reims : saison, habitat, confusions possibles.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2.0.6/css/pico.min.css">
+  <style>
+    .grid-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+    .grid-cards article { margin: 0; display: flex; flex-direction: column; }
+    .grid-cards article > header { padding: 0; overflow: hidden; }
+    .photo {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      display: block;
+      background: var(--pico-muted-border-color);
+    }
+    .latin { font-style: italic; color: var(--pico-muted-color); margin-top: -.75rem; }
+    .meta { font-size: .9rem; }
+    .meta dt { font-weight: 600; }
+    .meta dd { margin: 0 0 .5rem 0; }
+    .warn { color: var(--pico-del-color); }
+    .credit { font-size: .75rem; color: var(--pico-muted-color); }
+    .badge {
+      display: inline-block; font-size: .75rem; padding: .1rem .5rem;
+      border-radius: 1rem; border: 1px solid var(--pico-muted-border-color);
+      margin-right: .25rem;
+    }
+    .filters { display: flex; flex-wrap: wrap; gap: .5rem; }
+    .filters button { width: auto; padding: .35rem .9rem; font-size: .9rem; }
+  </style>
+</head>
+<body>
+  <header class="container">
+    <hgroup>
+      <h1>🍄 Champignons comestibles de la Montagne de Reims</h1>
+      <p>Hêtraies, chênaies, châtaigneraies, pinèdes et lisières du Parc naturel régional</p>
+    </hgroup>
+    <article>
+      <strong class="warn">⚠️ Avertissement :</strong>
+      cette page est un aide-mémoire, pas un guide d'identification.
+      Ne consommez jamais un champignon sans certitude absolue :
+      faites vérifier votre récolte par un <strong>pharmacien</strong> ou une
+      <strong>société mycologique</strong>. En cas de malaise après consommation,
+      appelez le <strong>15</strong> ou le centre antipoison.
+      La cueillette est réglementée dans certaines forêts (ONF, propriétés privées) :
+      renseignez-vous et ramassez avec modération.
+    </article>
+  </header>
+
+  <main class="container">
+    <nav class="filters" aria-label="Filtrer par saison">
+      <button data-filter="all">Tous</button>
+      <button class="outline" data-filter="printemps">Printemps</button>
+      <button class="outline" data-filter="ete">Été</button>
+      <button class="outline" data-filter="automne">Automne</button>
+      <button class="outline" data-filter="hiver">Hiver</button>
+    </nav>
+    <p id="count" class="credit"></p>
+    <section id="liste" class="grid-cards" aria-live="polite"></section>
+  </main>
+
+  <footer class="container">
+    <small>
+      Photos : Wikipédia / Wikimedia Commons (cliquez sur une photo pour voir l'auteur et la licence).
+      Informations indicatives, à recouper avec un ouvrage de référence.
+    </small>
+  </footer>
+
+  <script>
+    // saisons : printemps, ete, automne, hiver
+    const champignons = [
+      {
+        nom: "Cèpe de Bordeaux", latin: "Boletus edulis", wiki: "Boletus_edulis",
+        saisons: ["ete", "automne"],
+        habitat: "Hêtraies et chênaies, souvent en lisière ou dans les zones moussues.",
+        description: "Chapeau brun clair à brun, pied ventru blanc à fin réseau blanc, tubes blancs puis jaune-vert. Chair blanche immuable.",
+        confusion: "Bolet amer (Tylopilus felleus, réseau brun et pores rosés, très amer), bolet Satan (pores rouges)."
+      },
+      {
+        nom: "Cèpe d'été", latin: "Boletus reticulatus", wiki: "Boletus_reticulatus",
+        saisons: ["ete"],
+        habitat: "Chênes et hêtres, forêts claires, dès juin après des pluies chaudes.",
+        description: "Chapeau brun clair au toucher velouté, souvent craquelé ; réseau marqué sur tout le pied.",
+        confusion: "Bolet amer (Tylopilus felleus)."
+      },
+      {
+        nom: "Bolet bai", latin: "Imleria badia", wiki: "Imleria_badia",
+        saisons: ["automne"],
+        habitat: "Pinèdes et forêts mixtes sur sol acide, fréquent sur les hauteurs de la Montagne.",
+        description: "Chapeau brun chocolat, visqueux par temps humide ; pores jaunes bleuissant au toucher ; pied sans réseau.",
+        confusion: "Autres bolets bleuissants ; éviter tout bolet à pores rouges."
+      },
+      {
+        nom: "Girolle", latin: "Cantharellus cibarius", wiki: "Cantharellus_cibarius",
+        saisons: ["ete", "automne"],
+        habitat: "Hêtres, chênes et châtaigniers, sur sol acide et moussu.",
+        description: "Jaune d'œuf, plis (pas de vraies lames) décurrents et fourchus, odeur fruitée d'abricot.",
+        confusion: "Fausse girolle (Hygrophoropsis aurantiaca, vraies lames orangées), clitocybe de l'olivier (toxique, en touffes sur souches)."
+      },
+      {
+        nom: "Chanterelle en tube", latin: "Craterellus tubaeformis", wiki: "Craterellus_tubaeformis",
+        saisons: ["automne", "hiver"],
+        habitat: "Mousses et bois pourrissants, sous conifères et feuillus, souvent en grandes troupes.",
+        description: "Chapeau brun creusé en entonnoir, plis gris, pied jaune creux.",
+        confusion: "Petits cortinaires bruns (dont certains mortels) : vérifier les plis et le pied creux."
+      },
+      {
+        nom: "Trompette de la mort", latin: "Craterellus cornucopioides", wiki: "Craterellus_cornucopioides",
+        saisons: ["automne"],
+        habitat: "Hêtraies et chênaies, dans les feuilles mortes, en colonies.",
+        description: "Trompette noire à grise, entièrement creuse, face externe lisse et cendrée. Excellente séchée.",
+        confusion: "Peu de confusions dangereuses ; la chanterelle cendrée est également comestible."
+      },
+      {
+        nom: "Pied-de-mouton", latin: "Hydnum repandum", wiki: "Hydnum_repandum",
+        saisons: ["automne"],
+        habitat: "Feuillus et conifères, souvent en cercles ou en lignes.",
+        description: "Chapeau crème à orangé pâle, aiguillons cassants sous le chapeau à la place des lames.",
+        confusion: "Hydne roussâtre (Hydnum rufescens), comestible aussi. Peu de risques."
+      },
+      {
+        nom: "Morille commune", latin: "Morchella esculenta", wiki: "Morchella_esculenta",
+        saisons: ["printemps"],
+        habitat: "Lisières, sous frênes et ormes, anciens feux, talus calcaires (mars-mai).",
+        description: "Chapeau alvéolé en éponge, entièrement creux du chapeau au pied. Toujours bien cuite.",
+        confusion: "Gyromitre (Gyromitra esculenta, chapeau cérébriforme, chair cloisonnée) : mortelle."
+      },
+      {
+        nom: "Mousseron de la Saint-Georges", latin: "Calocybe gambosa", wiki: "Calocybe_gambosa",
+        saisons: ["printemps"],
+        habitat: "Lisières, haies et prés, en ronds de sorcières (fin avril-mai).",
+        description: "Blanc crème, charnu, lames serrées blanches, forte odeur de farine.",
+        confusion: "Entolome livide (toxique, lames roses à maturité) et inocybe de Patouillard (mortel, rougissant)."
+      },
+      {
+        nom: "Coulemelle (Lépiote élevée)", latin: "Macrolepiota procera", wiki: "Macrolepiota_procera",
+        saisons: ["ete", "automne"],
+        habitat: "Clairières, lisières, bords de chemins forestiers.",
+        description: "Grand chapeau (jusqu'à 30 cm) à écailles brunes, pied chiné, anneau double coulissant. Pied fibreux à jeter.",
+        confusion: "Petites lépiotes (mortelles !) : ne ramasser que des spécimens de plus de 10 cm de diamètre."
+      },
+      {
+        nom: "Rosé des prés", latin: "Agaricus campestris", wiki: "Agaricus_campestris",
+        saisons: ["ete", "automne"],
+        habitat: "Prairies pâturées et pelouses en bordure de massif, jamais en forêt profonde.",
+        description: "Chapeau blanc, lames roses puis brun chocolat, anneau fragile, odeur agréable.",
+        confusion: "Amanites blanches (mortelles, lames toujours blanches, volve) et agaric jaunissant (odeur d'encre)."
+      },
+      {
+        nom: "Pleurote en huître", latin: "Pleurotus ostreatus", wiki: "Pleurotus_ostreatus",
+        saisons: ["automne", "hiver"],
+        habitat: "En touffes étagées sur troncs et souches de hêtres morts.",
+        description: "Chapeau gris ardoise à brun en forme de coquille, lames blanches décurrentes, pied court latéral.",
+        confusion: "Pleurote de l'olivier et autres espèces lignicoles : bien vérifier la couleur des lames."
+      },
+      {
+        nom: "Pied bleu", latin: "Lepista nuda", wiki: "Lepista_nuda",
+        saisons: ["automne", "hiver"],
+        habitat: "Litière de feuilles, aiguilles, tas de compost en lisière.",
+        description: "Chapeau et lames violets puis brunâtres, pied violacé, odeur fruitée. Toxique cru, bien cuire.",
+        confusion: "Cortinaires violets (cortine, spores rouille) : faire une sporée, elle doit être rose pâle."
+      },
+      {
+        nom: "Russule charbonnière", latin: "Russula cyanoxantha", wiki: "Russula_cyanoxantha",
+        saisons: ["ete", "automne"],
+        habitat: "Hêtraies et chênaies, très commune.",
+        description: "Chapeau aux teintes mêlées violet-vert-gris, lames blanches souples et lardacées (ne cassent pas).",
+        confusion: "Russules âcres (goûter un fragment et recracher : doit être douce), amanite phalloïde (volve, anneau)."
+      },
+      {
+        nom: "Laccaire améthyste", latin: "Laccaria amethystina", wiki: "Laccaria_amethystina",
+        saisons: ["ete", "automne"],
+        habitat: "Hêtraies humides, très abondant dans les feuilles.",
+        description: "Petit champignon entièrement violet améthyste, lames espacées. Peut accumuler l'arsenic : à consommer avec modération.",
+        confusion: "Mycène pure (toxique, odeur de radis)."
+      },
+      {
+        nom: "Vesse-de-loup perlée", latin: "Lycoperdon perlatum", wiki: "Lycoperdon_perlatum",
+        saisons: ["ete", "automne"],
+        habitat: "Sols forestiers, bords de chemins.",
+        description: "Boule blanche couverte de petites verrues. Comestible jeune uniquement, chair blanche et homogène.",
+        confusion: "Jeunes amanites en œuf (couper en deux : aucune silhouette de champignon ne doit apparaître), sclérodermes (chair noire)."
+      },
+      {
+        nom: "Polypore soufré", latin: "Laetiporus sulphureus", wiki: "Laetiporus_sulphureus",
+        saisons: ["printemps", "ete"],
+        habitat: "Sur chênes, châtaigniers et saules, en grandes consoles.",
+        description: "Consoles jaune soufre à orange, chair tendre en bordure quand jeune. Bien cuire ; éviter les spécimens poussant sur if.",
+        confusion: "Peu de sosies, mais intolérances digestives fréquentes."
+      },
+      {
+        nom: "Oreille de Judas", latin: "Auricularia auricula-judae", wiki: "Auricularia_auricula-judae",
+        saisons: ["automne", "hiver", "printemps"],
+        habitat: "Branches mortes de sureau, parfois d'érable ou de hêtre.",
+        description: "Forme d'oreille brune, gélatineuse et élastique, face externe veloutée.",
+        confusion: "Pézizes et trémelles (peu dangereuses). Toujours cuire."
+      },
+      {
+        nom: "Marasme des oréades", latin: "Marasmius oreades", wiki: "Marasmius_oreades",
+        saisons: ["printemps", "ete", "automne"],
+        habitat: "Pelouses et prairies en bordure de massif, en ronds de sorcières.",
+        description: "Petit chapeau mamelonné beige, lames espacées, pied coriace qui se tord sans casser. Se sèche très bien.",
+        confusion: "Clitocybe blanchi (Clitocybe dealbata, mortel), qui pousse dans les mêmes ronds."
+      }
+    ];
+
+    const saisonsLabel = { printemps: "🌱 Printemps", ete: "☀️ Été", automne: "🍂 Automne", hiver: "❄️ Hiver" };
+    const liste = document.getElementById("liste");
+    const count = document.getElementById("count");
+
+    const placeholder = (nom) =>
+      "data:image/svg+xml;charset=utf-8," + encodeURIComponent(
+        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+           <rect width="400" height="300" fill="#e7e2d8"/>
+           <text x="200" y="140" font-size="64" text-anchor="middle">🍄</text>
+           <text x="200" y="200" font-size="18" text-anchor="middle" fill="#666" font-family="sans-serif">${nom}</text>
+         </svg>`);
+
+    function carte(c) {
+      const el = document.createElement("article");
+      el.dataset.saisons = c.saisons.join(" ");
+      el.innerHTML = `
+        <header>
+          <a href="https://fr.wikipedia.org/wiki/${encodeURIComponent(c.latin.replace(/ /g, "_"))}" target="_blank" rel="noopener">
+            <img class="photo" alt="${c.nom} (${c.latin})" loading="lazy" src="${placeholder(c.nom)}">
+          </a>
+        </header>
+        <h3>${c.nom}</h3>
+        <p class="latin">${c.latin}</p>
+        <p>${c.saisons.map(s => `<span class="badge">${saisonsLabel[s]}</span>`).join("")}</p>
+        <dl class="meta">
+          <dt>Description</dt><dd>${c.description}</dd>
+          <dt>Habitat</dt><dd>${c.habitat}</dd>
+          <dt class="warn">Confusions possibles</dt><dd>${c.confusion}</dd>
+        </dl>`;
+      chargerPhoto(c, el.querySelector("img"), el.querySelector("header a"));
+      return el;
+    }
+
+    // Photo récupérée via l'API publique de Wikipédia (CORS autorisé).
+    async function chargerPhoto(c, img, lien) {
+      for (const lang of ["fr", "en"]) {
+        try {
+          const r = await fetch(`https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(c.wiki)}`);
+          if (!r.ok) continue;
+          const data = await r.json();
+          const src = data.thumbnail?.source || data.originalimage?.source;
+          if (src) {
+            img.src = src.replace(/\/\d+px-/, "/640px-");
+            img.onerror = () => { img.onerror = null; img.src = src; };
+            if (data.content_urls?.desktop?.page) lien.href = data.content_urls.desktop.page;
+            return;
+          }
+        } catch (e) { /* hors ligne : on garde le placeholder */ }
+      }
+    }
+
+    champignons.forEach(c => liste.appendChild(carte(c)));
+
+    function filtrer(saison) {
+      let n = 0;
+      liste.querySelectorAll("article").forEach(a => {
+        const ok = saison === "all" || a.dataset.saisons.split(" ").includes(saison);
+        a.hidden = !ok;
+        if (ok) n++;
+      });
+      count.textContent = `${n} espèce${n > 1 ? "s" : ""} affichée${n > 1 ? "s" : ""}`;
+      document.querySelectorAll(".filters button").forEach(b =>
+        b.classList.toggle("outline", b.dataset.filter !== saison));
+    }
+    document.querySelectorAll(".filters button").forEach(b =>
+      b.addEventListener("click", () => filtrer(b.dataset.filter)));
+    filtrer("all");
+  </script>
+</body>
+</html>
